@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>汎用契約書ジェネレーター</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>汎用契約書ジェネレーター</h1>
+            <p>契約書タイプを選択し、条項をカスタマイズして契約書を生成</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 設定・フォーム部分 -->
+            <div class="form-section">
+                <div class="form-header">
+                    <h2>契約書設定</h2>
+                    <div class="header-controls">
+                        <button id="save-template" class="btn btn-save">
+                            <i class="fas fa-save"></i>
+                            設定保存
+                        </button>
+                        <button id="load-template" class="btn btn-load">
+                            <i class="fas fa-upload"></i>
+                            設定読込
+                        </button>
+                        <button id="toggle-preview" class="mobile-toggle">
+                            <i class="fas fa-eye" id="toggle-icon"></i>
+                            <span id="toggle-text">プレビュー表示</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 契約書タイプ選択 -->
+                <div class="contract-type-section">
+                    <h3>契約書タイプ</h3>
+                    <div class="type-selector">
+                        <select id="contract-type" name="contractType">
+                            <option value="consulting">業務委託契約書</option>
+                            <option value="employment">雇用契約書</option>
+                            <option value="nda">秘密保持契約書</option>
+                            <option value="rental">賃貸借契約書</option>
+                            <option value="sales">売買契約書</option>
+                            <option value="custom">カスタム契約書</option>
+                        </select>
+                        <button id="add-custom-type" class="btn btn-secondary">
+                            <i class="fas fa-plus"></i>
+                            カスタムタイプ追加
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 基本情報フォーム -->
+                <div class="basic-info-section">
+                    <h3>基本情報</h3>
+                    <div id="dynamic-form" class="dynamic-form">
+                        <!-- JavaScriptで動的に生成 -->
+                    </div>
+                </div>
+
+                <!-- 条項エディター -->
+                <div class="articles-section">
+                    <div class="articles-header">
+                        <h3>条項設定</h3>
+                        <button id="add-article" class="btn btn-secondary">
+                            <i class="fas fa-plus"></i>
+                            条項追加
+                        </button>
+                    </div>
+                    <div id="articles-container" class="articles-container">
+                        <!-- JavaScriptで動的に生成 -->
+                    </div>
+                </div>
+
+                <!-- 生成ボタン群 -->
+                <div class="generation-section">
+                    <div class="button-group">
+                        <button type="button" id="generate-btn" class="btn btn-primary">
+                            <i class="fas fa-file-text"></i>
+                            契約書を生成
+                        </button>
+                        
+                        <button type="button" id="copy-btn" class="btn btn-secondary" disabled>
+                            <i class="fas fa-copy"></i>
+                            HTMLをコピー
+                        </button>
+                        
+                        <button type="button" id="open-btn" class="btn btn-tertiary" disabled>
+                            <i class="fas fa-external-link-alt"></i>
+                            新しいタブで開く
+                        </button>
+
+                        <button type="button" id="export-pdf" class="btn btn-quaternary" disabled>
+                            <i class="fas fa-file-pdf"></i>
+                            PDF出力
+                        </button>
+                    </div>
+                </div>
+
+                <!-- HTMLコード表示エリア -->
+                <div id="html-code-section" class="html-code-section" style="display: none;">
+                    <div class="code-header">
+                        <h3>生成されたHTMLコード</h3>
+                        <button id="toggle-code" class="toggle-code-btn">表示</button>
+                    </div>
+                    <textarea id="generated-html" readonly rows="10" placeholder="生成されたHTMLコードがここに表示されます"></textarea>
+                    <div class="code-instructions">
+                        <strong>使い方：</strong><br>
+                        1. 「HTMLをコピー」でコードをコピー<br>
+                        2. テキストエディタに貼り付けて保存<br>
+                        3. ブラウザで開いて印刷またはPDF保存
+                    </div>
+                </div>
+            </div>
+
+            <!-- プレビュー -->
+            <div class="preview-section" id="preview-section">
+                <div class="preview-header">
+                    <h2>プレビュー</h2>
+                    <div class="preview-controls">
+                        <button id="preview-refresh" class="btn btn-small">
+                            <i class="fas fa-sync"></i>
+                            更新
+                        </button>
+                    </div>
+                </div>
+                <div class="preview-container">
+                    <div id="preview-content" class="preview-content">
+                        <div class="preview-placeholder">
+                            契約書タイプを選択してください
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- モーダル：カスタムタイプ追加 -->
+    <div id="custom-type-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>カスタム契約書タイプ作成</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="custom-type-name">契約書タイプ名</label>
+                    <input type="text" id="custom-type-name" placeholder="例：ライセンス契約書">
+                </div>
+                <div class="form-group">
+                    <label for="custom-type-description">説明</label>
+                    <textarea id="custom-type-description" rows="3" placeholder="この契約書タイプの説明"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="save-custom-type" class="btn btn-primary">保存</button>
+                <button class="modal-close btn btn-secondary">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- モーダル：条項エディター -->
+    <div id="article-editor-modal" class="modal" style="display: none;">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3>条項エディター</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="article-title">条項タイトル</label>
+                    <input type="text" id="article-title" placeholder="例：第1条（目的）">
+                </div>
+                <div class="form-group">
+                    <label for="article-content">条項内容</label>
+                    <textarea id="article-content" rows="8" placeholder="条項の内容を入力してください..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="article-required">
+                        必須条項
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label for="article-variables">変数定義（JSON形式）</label>
+                    <textarea id="article-variables" rows="4" placeholder='{"変数名": "デフォルト値"}'></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="save-article" class="btn btn-primary">保存</button>
+                <button class="modal-close btn btn-secondary">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ファイル入力（非表示） -->
+    <input type="file" id="file-input" accept=".json" style="display: none;">
+
+    <!-- JavaScript modules -->
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/storage-manager.js"></script>
+    <script src="js/ui-manager.js"></script>
+    <script src="js/form-manager.js"></script>
+    <script src="js/article-manager.js"></script>
+    <script src="js/preview-manager.js"></script>
+    <script src="js/contract-generator.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
